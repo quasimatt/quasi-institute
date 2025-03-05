@@ -24,28 +24,33 @@ body {
 
 /* Navigation bar */
 nav {
-  background-color: #000; /* or #111 if you prefer */
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  background-color: #000; /* Could use #111 if preferred, but #000 matches the body */
   padding: 10px 20px;
-  /* Allow content to wrap onto multiple lines when space is limited: */
-  flex-wrap: wrap;
 }
 
+/* Container for logo and links */
+.nav-container {
+  display: flex;      /* Use Flexbox */
+  flex-wrap: wrap;    /* Allows logo and links to move onto a new line if needed */
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Logo styling: ensures the SVG doesn’t stretch too tall */
 .logo {
-  width: 120px; /* Adjust as needed for desktop. */
+  width: 120px; /* Adjust as needed for desktop view */
   height: auto;
 }
 
-nav a {
+/* Navigation Links */
+.nav-links a {
   color: #fff;
   text-decoration: none;
   margin: 0 10px;
   font-weight: bold;
 }
 
-nav a:hover {
+.nav-links a:hover {
   text-decoration: underline;
 }
 
@@ -55,18 +60,25 @@ p {
   margin-bottom: 1.5em;
 }
 
-/* MEDIA QUERY:
-   When the screen is narrower than 600px, reduce logo size and
-   stack elements so they don't overlap. */
+/* Responsive adjustments for narrow screens */
 @media (max-width: 600px) {
   .logo {
-    /* Shrink the logo a bit on mobile */
-    width: 80px;
+    width: 80px; /* Shrink logo on smaller screens */
     margin-bottom: 10px;
   }
+
+  .nav-container {
+    /* Stack items vertically instead of side by side */
+    flex-direction: column;
+  }
   
-  nav {
-    /* Because flex-wrap is on, items will shift to next line */
-    justify-content: center; 
+  .nav-links {
+    display: flex;
+    flex-wrap: wrap; /* Links can break line if necessary */
+    justify-content: center;
+  }
+  
+  .nav-links a {
+    margin: 5px; /* Slightly smaller margin on mobile */
   }
 }
