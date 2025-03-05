@@ -1,13 +1,47 @@
-body {
-    background-color: black;
-    color: white;
-    font-family: 'Helvetica Neue', sans-serif;
-    text-transform: lowercase;
-    font-size: 20vw;
-    text-align: justify;
+/* style.css */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-a {
-    color: white;
-    text-decoration: underline;
+body {
+  background-color: #000; /* Black background */
+  color: #fff;            /* White text */
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.container {
+  width: 80%;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Navigation bar */
+nav {
+  background-color: #111;
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* space-between the logo on the left and links on the right */
+  padding: 10px 20px;
+}
+
+nav a {
+  color: #fff;
+  text-decoration: none;
+  margin: 0 10px;
+  font-weight: bold;
+}
+
+nav a:hover {
+  text-decoration: underline;
+}
+
+/* Logo styling: ensures the SVG doesn’t stretch too tall */
+nav .logo {
+  width: 120px; /* Adjust as needed */
+  height: auto;
 }
