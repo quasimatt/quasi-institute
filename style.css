@@ -7,6 +7,17 @@
   box-sizing: border-box;
 }
 
+/* Base style for links */
+a {
+  color: #fff;
+  text-decoration: none;
+}
+
+/* Visited links remain white */
+a:visited {
+  color: #fff;
+}
+
 body {
   background-color: #000; /* Black background */
   color: #fff;            /* White text */
