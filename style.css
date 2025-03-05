@@ -51,4 +51,5 @@ nav .logo {
 /* Justify paragraph text throughout the site */
 p {
   text-align: justify;
+  margin-bottom: 1.5em;
 }
