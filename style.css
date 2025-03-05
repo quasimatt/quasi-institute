@@ -24,11 +24,18 @@ body {
 
 /* Navigation bar */
 nav {
-  background-color: #000;
+  background-color: #000; /* or #111 if you prefer */
   display: flex;
   align-items: center;
-  justify-content: space-between; /* space-between the logo on the left and links on the right */
+  justify-content: space-between;
   padding: 10px 20px;
+  /* Allow content to wrap onto multiple lines when space is limited: */
+  flex-wrap: wrap;
+}
+
+.logo {
+  width: 120px; /* Adjust as needed for desktop. */
+  height: auto;
 }
 
 nav a {
@@ -42,14 +49,24 @@ nav a:hover {
   text-decoration: underline;
 }
 
-/* Logo styling: ensures the SVG doesn’t stretch too tall */
-nav .logo {
-  width: 120px; /* Adjust as needed */
-  height: auto;
-}
-
 /* Justify paragraph text throughout the site */
 p {
   text-align: justify;
   margin-bottom: 1.5em;
+}
+
+/* MEDIA QUERY:
+   When the screen is narrower than 600px, reduce logo size and
+   stack elements so they don't overlap. */
+@media (max-width: 600px) {
+  .logo {
+    /* Shrink the logo a bit on mobile */
+    width: 80px;
+    margin-bottom: 10px;
+  }
+  
+  nav {
+    /* Because flex-wrap is on, items will shift to next line */
+    justify-content: center; 
+  }
 }
