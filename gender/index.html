@@ -2,26 +2,59 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Full Page PDF</title>
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>PDF (pdf.js)</title>
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      width: 100%;
-      overflow: hidden;
+    html, body { margin: 0; background: #000; color: #fff; }
+    #viewer { width: 100%; max-width: 100vw; }
+    .page {
+      display: block;
+      margin: 0 auto;
+      width: min(100vw, 900px); /* cap width; tweak to taste */
+      padding: 16px 0;
     }
-    embed, iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
+    canvas { width: 100%; height: auto; display: block; background: #111; }
   </style>
 </head>
 <body>
-  <!-- Use either embed OR iframe -->
-  <embed src="gender/genderdraft10.23.25.pdf" type="application/pdf" />
-  <!-- <iframe src="example.pdf"></iframe> -->
+  <div id="viewer"></div>
+
+  <!-- pdf.js (no external net needed beyond this CDN) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.3.136/pdf.min.js"></script>
+  <script>
+    const url = 'gender/genderdraft10.23.25.pdf'; // <-- your PDF
+
+    // Configure worker
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.3.136/pdf.worker.min.js';
+
+    (async function renderPDF() {
+      const pdf = await pdfjsLib.getDocument(url).promise;
+      const viewer = document.getElementById('viewer');
+
+      for (let p = 1; p <= pdf.numPages; p++) {
+        const page = await pdf.getPage(p);
+        const viewport = page.getViewport({ scale: 1.5 }); // tweak scale
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d', { alpha: false });
+
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+
+        const wrap = document.createElement('div');
+        wrap.className = 'page';
+        wrap.appendChild(canvas);
+        viewer.appendChild(wrap);
+
+        await page.render({ canvasContext: ctx, viewport }).promise;
+      }
+    })().catch(err => {
+      document.body.innerHTML =
+        '<p style="color:#fff;padding:16px">Could not load PDF. ' +
+        `<a href="${url}" style="color:#9cf">Open it directly</a>.</p>`;
+      console.error(err);
+    });
+  </script>
 </body>
 </html>
