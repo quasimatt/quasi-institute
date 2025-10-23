@@ -1,31 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Embedded PDF Example</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Full Page PDF</title>
   <style>
-    body {
+    html, body {
       margin: 0;
-      background-color: #111;
-      color: white;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      font-family: sans-serif;
-    }
-    h1 {
-      margin-bottom: 1rem;
-      font-weight: 400;
-    }
-    .pdf-container {
-      width: 80%;
-      height: 80%;
-      box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
-      border: 1px solid #333;
-      background: #222;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
     }
     embed, iframe {
       width: 100%;
@@ -35,14 +20,8 @@
   </style>
 </head>
 <body>
-  <h1>PDF Embed Example</h1>
-
-  <div class="pdf-container">
-    <!-- Option 1: EMBED -->
-    <embed src="gender/genderdraft10.23.25.pdf" type="application/pdf">
-
-    <!-- Option 2: IFRAME (uncomment to use) -->
-    <!-- <iframe src="example.pdf"></iframe> -->
-  </div>
+  <!-- Use either embed OR iframe -->
+  <embed src="gender/genderdraft10.23.25.pdf" type="application/pdf" />
+  <!-- <iframe src="example.pdf"></iframe> -->
 </body>
 </html>
