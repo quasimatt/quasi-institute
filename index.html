@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="Quasi_Institute_Logo.svg" type="image/png" type="image/svg+xml">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="Quasi_Institute_Logo.svg" type="image/svg+xml">
   <title>QUASI INSTITUTE</title>
   <style>
     html, body {
@@ -16,227 +16,171 @@
       width: 100%;
       height: 100%;
       display: block;
-      object-fit: fill; /* stretch to fit both dimensions */
+      object-fit: fill;
+    }
+
+    /* ===== Desktop PDF Overlay (always on, no blur, no toggle) ===== */
+    #desktopOverlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      pointer-events: none;
+    }
+
+    .desktop-icon {
+      position: absolute;
+      width: 84px;
+      pointer-events: auto;
+      user-select: none;
+      touch-action: none;
+      filter: drop-shadow(0 4px 16px rgba(0,0,0,.35));
+      cursor: pointer;
+      transition: transform 0.1s ease;
+    }
+    .desktop-icon:active {
+      transform: scale(0.96);
+    }
+
+    .desktop-icon .thumb {
+      width: 84px; height: 84px;
+      border-radius: 14px;
+      background: transparent;
+      border: 1px solid rgba(255,255,255,.35);
+      display: grid; place-items: center;
+    }
+    .desktop-icon .thumb .pdf {
+      font-size: 44px; line-height: 1;
+    }
+
+    .desktop-icon .label {
+      margin-top: 6px;
+      width: 100%;
+      text-align: center;
+      font: 12px/1.25 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: #fff;
+      text-shadow: 0 1px 2px rgba(0,0,0,.9);
+      word-break: break-word;
     }
   </style>
 </head>
 <body>
-  <div style="text-align:center;"><a href="https://forms.gle/D2s1P6wj58EfSYsf8" target="_blank" rel="noopener" style="font-family:'Computer Modern','CMU Serif','Latin Modern Roman',Georgia,'Times New Roman',Times,serif;color:#fff;">Sign up for updates.</a></div>
+  <div style="text-align:center;">
+    <a href="https://forms.gle/D2s1P6wj58EfSYsf8" target="_blank" rel="noopener"
+       style="font-family:'Computer Modern','CMU Serif','Latin Modern Roman',Georgia,'Times New Roman',Times,serif;color:#fff;">
+      Sign up for updates.
+    </a>
+  </div>
+
   <img src="Quasi_Institute_Logo.svg" alt="Quasi Institute Logo">
-</body>
 
-<!-- ===== Desktop PDF Overlay ===== -->
-<style>
-  /* Full-screen overlay that floats over your existing site */
-  #desktopOverlay {
-    position: fixed;
-    inset: 0;
-    z-index: 9999;
-    pointer-events: none;              /* let background be clickable except icons */
-    /* subtle glass so users sense a layer without hiding your site */
-    backdrop-filter: blur(1.5px) saturate(1.05);
-  }
+  <!-- ===== Desktop PDF Overlay ===== -->
+  <div id="desktopOverlay" aria-label="Desktop overlay for PDFs"></div>
 
-  /* The “icons” live in this layer; they handle their own pointer events */
-  .desktop-icon {
-    position: absolute;
-    width: 84px;
-    pointer-events: auto;              /* re-enable on the icons themselves */
-    user-select: none;
-    touch-action: none;                /* required for PointerEvent dragging on mobile */
-    --shadow: 0 4px 16px rgba(0,0,0,.35);
-    filter: drop-shadow(var(--shadow));
-  }
+  <script>
+  (function(){
+    // ---- Configure your PDFs here ----
+    const icons = [
+      { id: 'gender', title: 'Gender as a Topological Space', href: '/pdfs/Gender_QuasiInstitute.pdf', x: 40,  y: 120 },
+      // { id: 'poly', title: 'Polyamory Hypergraphs', href: '/pdfs/poly-hypergraphs.pdf', x: 160, y: 120 },
+    ];
 
-  .desktop-icon .thumb {
-    width: 84px; height: 108px;
-    border-radius: 12px;
-    background: linear-gradient(180deg, #fafafa, #e9e9e9);
-    border: 1px solid rgba(255,255,255,.6);
-    display: grid; place-items: center;
-    overflow: hidden;
-  }
-  .desktop-icon .thumb .pdf {
-    font-size: 48px; line-height: 1; 
-  }
+    const overlay = document.getElementById('desktopOverlay');
+    const saved = JSON.parse(localStorage.getItem('desktopIconPositions') || '{}');
 
-  /* Label under the icon */
-  .desktop-icon .label {
-    margin-top: 6px;
-    width: 100%;
-    text-align: center;
-    font: 12px/1.25 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-    color: white;
-    text-shadow: 0 1px 2px rgba(0,0,0,.8);
-    word-break: break-word;
-  }
+    // Build icons
+    icons.forEach(meta => {
+      const el = document.createElement('div');
+      el.className = 'desktop-icon';
+      el.id = 'icon-' + meta.id;
+      el.dataset.href = meta.href;
+      el.dataset.id = meta.id;
 
-  /* Drag affordance cursor */
-  .desktop-icon { cursor: grab; }
-  .desktop-icon.dragging { cursor: grabbing; }
+      const thumb = document.createElement('div');
+      thumb.className = 'thumb';
+      thumb.innerHTML = '<div class="pdf">📄</div>';
 
-  /* Optional: toggle button (bottom-right) */
-  #desktopToggle {
-    position: fixed; right: 16px; bottom: 16px; z-index: 10000;
-    background: rgba(0,0,0,.55); color: #fff; border: 1px solid rgba(255,255,255,.2);
-    padding: 8px 12px; border-radius: 10px; font: 12px/1 system-ui, sans-serif;
-    backdrop-filter: blur(6px);
-  }
-  #desktopOverlay.hidden { display: none; }
-</style>
+      const label = document.createElement('div');
+      label.className = 'label';
+      label.textContent = meta.title;
 
-<div id="desktopOverlay" aria-label="Desktop overlay for PDFs"></div>
-<button id="desktopToggle" type="button" aria-pressed="true">Hide desktop</button>
+      el.appendChild(thumb);
+      el.appendChild(label);
+      overlay.appendChild(el);
 
-<script>
-(function(){
-  // --- 1) Configure your PDFs here ----
-  const icons = [
-    { id: 'gender', title: 'Gender as a Topological Space', href: '/pdfs/Gender_QuasiInstitute.pdf', x: 40,  y: 120 },
-  ];
+      // initial position (saved or default)
+      const pos = saved[meta.id] || { x: meta.x, y: meta.y };
+      position(el, pos.x, pos.y);
 
-  const overlay = document.getElementById('desktopOverlay');
-
-  // Restore saved positions if present
-  const saved = JSON.parse(localStorage.getItem('desktopIconPositions') || '{}');
-
-  // --- 2) Build icons ---
-  icons.forEach(meta => {
-    const el = document.createElement('div');
-    el.className = 'desktop-icon';
-    el.id = 'icon-' + meta.id;
-    el.setAttribute('role', 'button');
-    el.setAttribute('tabindex', '0');
-    el.setAttribute('aria-label', meta.title);
-
-    el.dataset.href = meta.href;
-    el.dataset.id = meta.id;
-
-    const thumb = document.createElement('div');
-    thumb.className = 'thumb';
-    thumb.innerHTML = '<div class="pdf">📄</div>';
-
-    const label = document.createElement('div');
-    label.className = 'label';
-    label.textContent = meta.title;
-
-    el.appendChild(thumb);
-    el.appendChild(label);
-    overlay.appendChild(el);
-
-    // initial position (saved or default)
-    const pos = saved[meta.id] || { x: meta.x, y: meta.y };
-    position(el, pos.x, pos.y);
-
-    // interactions
-    makeDraggable(el);
-    makeOpenOnDbl(el);
-    makeKeyboardOpen(el);
-  });
-
-  // Optional toggle button
-  const toggleBtn = document.getElementById('desktopToggle');
-  toggleBtn.addEventListener('click', () => {
-    const hidden = overlay.classList.toggle('hidden');
-    toggleBtn.textContent = hidden ? 'Show desktop' : 'Hide desktop';
-    toggleBtn.setAttribute('aria-pressed', String(!hidden));
-  });
-
-  // --- helpers ---
-  function position(el, x, y) {
-    // clamp within viewport
-    const w = 84, h = 132; // icon + label rough height
-    const pad = 8;
-    const maxX = window.innerWidth  - w - pad;
-    const maxY = window.innerHeight - h - pad;
-    const nx = Math.max(pad, Math.min(x, maxX));
-    const ny = Math.max(pad, Math.min(y, maxY));
-    el.style.transform = `translate(${nx}px, ${ny}px)`;
-    el.dataset.x = nx; el.dataset.y = ny;
-  }
-
-  function persist(el) {
-    const id = el.dataset.id;
-    const store = JSON.parse(localStorage.getItem('desktopIconPositions') || '{}');
-    store[id] = { x: parseFloat(el.dataset.x), y: parseFloat(el.dataset.y) };
-    localStorage.setItem('desktopIconPositions', JSON.stringify(store));
-  }
-
-  function makeOpenOnDbl(el) {
-    el.addEventListener('dblclick', (e) => {
-      e.preventDefault();
-      const href = el.dataset.href;
-      if (href) window.open(href, '_blank', 'noopener');
-    });
-    // mobile: double-tap fallback (300ms window)
-    let lastTap = 0;
-    el.addEventListener('pointerup', (e) => {
-      const now = Date.now();
-      if (now - lastTap < 300) {
-        const href = el.dataset.href;
-        if (href) window.open(href, '_blank', 'noopener');
-      }
-      lastTap = now;
-    });
-  }
-
-  function makeKeyboardOpen(el) {
-    el.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
+      // open on single click
+      el.addEventListener('click', (e) => {
         e.preventDefault();
         const href = el.dataset.href;
         if (href) window.open(href, '_blank', 'noopener');
-      }
-    });
-  }
+      });
 
-  function makeDraggable(el) {
-    let startX=0, startY=0, origX=0, origY=0, dragging=false;
-
-    el.addEventListener('pointerdown', (e) => {
-      // only left/mouse main button or touch
-      if (e.button !== undefined && e.button !== 0) return;
-      dragging = true;
-      el.setPointerCapture(e.pointerId);
-      el.classList.add('dragging');
-
-      const rect = overlay.getBoundingClientRect();
-      const tx = parseFloat(el.dataset.x || 0);
-      const ty = parseFloat(el.dataset.y || 0);
-      origX = tx; origY = ty;
-      startX = e.clientX - rect.left;
-      startY = e.clientY - rect.top;
+      // draggable
+      makeDraggable(el);
     });
 
-    el.addEventListener('pointermove', (e) => {
-      if (!dragging) return;
-      const rect = overlay.getBoundingClientRect();
-      const cx = e.clientX - rect.left;
-      const cy = e.clientY - rect.top;
-      position(el, origX + (cx - startX), origY + (cy - startY));
+    function position(el, x, y) {
+      const w = 84, h = 100; 
+      const pad = 8;
+      const maxX = innerWidth  - w - pad;
+      const maxY = innerHeight - h - pad;
+      const nx = Math.max(pad, Math.min(x, maxX));
+      const ny = Math.max(pad, Math.min(y, maxY));
+      el.style.transform = `translate(${nx}px, ${ny}px)`;
+      el.dataset.x = nx; el.dataset.y = ny;
+    }
+
+    function persist(el) {
+      const id = el.dataset.id;
+      const store = JSON.parse(localStorage.getItem('desktopIconPositions') || '{}');
+      store[id] = { x: parseFloat(el.dataset.x), y: parseFloat(el.dataset.y) };
+      localStorage.setItem('desktopIconPositions', JSON.stringify(store));
+    }
+
+    function makeDraggable(el) {
+      let startX=0, startY=0, origX=0, origY=0, dragging=false;
+      const overlay = document.getElementById('desktopOverlay');
+
+      el.addEventListener('pointerdown', (e) => {
+        if (e.button !== undefined && e.button !== 0) return;
+        dragging = true;
+        el.setPointerCapture(e.pointerId);
+        el.classList.add('dragging');
+        const rect = overlay.getBoundingClientRect();
+        origX = parseFloat(el.dataset.x || 0);
+        origY = parseFloat(el.dataset.y || 0);
+        startX = e.clientX - rect.left;
+        startY = e.clientY - rect.top;
+      });
+
+      el.addEventListener('pointermove', (e) => {
+        if (!dragging) return;
+        const rect = overlay.getBoundingClientRect();
+        const cx = e.clientX - rect.left;
+        const cy = e.clientY - rect.top;
+        position(el, origX + (cx - startX), origY + (cy - startY));
+      });
+
+      el.addEventListener('pointerup', (e) => {
+        if (!dragging) return;
+        dragging = false;
+        el.classList.remove('dragging');
+        el.releasePointerCapture(e.pointerId);
+        persist(el);
+      });
+
+      el.addEventListener('dragstart', (e) => e.preventDefault());
+    }
+
+    window.addEventListener('resize', () => {
+      overlay.querySelectorAll('.desktop-icon').forEach(el => {
+        position(el, parseFloat(el.dataset.x||0), parseFloat(el.dataset.y||0));
+      });
     });
-
-    el.addEventListener('pointerup', (e) => {
-      if (!dragging) return;
-      dragging = false;
-      el.classList.remove('dragging');
-      el.releasePointerCapture(e.pointerId);
-      persist(el);
-    });
-
-    // prevent accidental text/image drag ghost
-    el.addEventListener('dragstart', (e) => e.preventDefault());
-  }
-
-  // keep icons clamped on resize/orientation change
-  window.addEventListener('resize', () => {
-    overlay.querySelectorAll('.desktop-icon').forEach(el => {
-      position(el, parseFloat(el.dataset.x||0), parseFloat(el.dataset.y||0));
-    });
-  });
-})();
-</script>
-<!-- ===== End Desktop PDF Overlay ===== -->
-
-  
+  })();
+  </script>
+</body>
 </html>
